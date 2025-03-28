@@ -1,0 +1,6 @@
+@ChamCongAPI_HostAddress = http://localhost:5153
+
+GET {{ChamCongAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
