@@ -43,7 +43,30 @@ namespace ChamCongAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(employee).State = EntityState.Modified;
+            var existingEmployee = await _context.Employees.FindAsync(id);
+            if (existingEmployee == null)
+            {
+                return NotFound();
+            }
+
+            // Kiểm tra nếu mật khẩu mới khác mật khẩu cũ (chưa mã hóa)
+            if (!string.IsNullOrEmpty(employee.PasswordHash) &&
+                !BCrypt.Net.BCrypt.Verify(employee.PasswordHash, existingEmployee.PasswordHash))
+            {
+                existingEmployee.PasswordHash = BCrypt.Net.BCrypt.HashPassword(employee.PasswordHash);
+            }
+
+            // Cập nhật các thông tin khác
+            existingEmployee.EmployeeCode = employee.EmployeeCode;
+            existingEmployee.Name = employee.Name;
+            existingEmployee.Department = employee.Department;
+            existingEmployee.Position = employee.Position;
+            existingEmployee.Email = employee.Email;
+            existingEmployee.LateDays = employee.LateDays;
+            existingEmployee.LeaveDays = employee.LeaveDays;
+            existingEmployee.IsManager = employee.IsManager;
+
+            _context.Entry(existingEmployee).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(employee);
         }
