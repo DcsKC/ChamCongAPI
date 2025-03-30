@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ChamCongAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 
 namespace ChamCongAPI.Controllers
 {
@@ -18,15 +19,18 @@ namespace ChamCongAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.Email == model.Email && e.PasswordHash == model.Password);
+            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Email == model.Email);
 
-            if (employee == null)
+            if (employee == null || !BCrypt.Net.BCrypt.Verify(model.Password, employee.PasswordHash))
             {
                 return Unauthorized(new { message = "Email hoặc mật khẩu không đúng." });
             }
 
-            return Ok(new { userId = employee.Id });
+            return Ok(new
+            {
+                UserId = employee.Id,
+                UserIsManager = employee.IsManager
+            });
         }
     }
 

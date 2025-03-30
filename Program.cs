@@ -1,5 +1,9 @@
-﻿using ChamCongAPI;
+﻿using System.Text;
+using ChamCongAPI;
+using ChamCongAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +27,30 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+    if (!context.Employees.Any(e => e.Email == "admin@company.com"))
+    {
+        var admin = new Employee
+        {
+            EmployeeCode = "ADMIN001",
+            Name = "Administrator",
+            Department = "IT",
+            Position = "Admin",
+            Email = "admin@company.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), // Băm mật khẩu
+            LateDays = 0,
+            LeaveDays = 0,
+            IsManager = true
+        };
+
+        context.Employees.Add(admin);
+        context.SaveChanges();
+        Console.WriteLine("✅ Admin account created successfully!");
+    }
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
