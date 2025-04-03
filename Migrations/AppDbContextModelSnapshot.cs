@@ -42,12 +42,17 @@ namespace ChamCongAPI.Migrations
                     b.Property<bool>("IsLate")
                         .HasColumnType("bit");
 
+                    b.Property<double>("WorkHours")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
 
                     b.ToTable("ChamCongs");
                 });
 
-            modelBuilder.Entity("ChamCongAPI.Models.Employee", b =>
+            modelBuilder.Entity("Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -67,15 +72,6 @@ namespace ChamCongAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsManager")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("LateDays")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LeaveDays")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -88,9 +84,29 @@ namespace ChamCongAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Rules")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("ChamCongAPI.Models.ChamCong", b =>
+                {
+                    b.HasOne("Employee", "Employee")
+                        .WithMany("ChamCongs")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("Employee", b =>
+                {
+                    b.Navigation("ChamCongs");
                 });
 #pragma warning restore 612, 618
         }

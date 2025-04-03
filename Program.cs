@@ -27,30 +27,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    if (!context.Employees.Any(e => e.Email == "admin@company.com"))
-    {
-        var admin = new Employee
-        {
-            EmployeeCode = "ADMIN001",
-            Name = "Administrator",
-            Department = "IT",
-            Position = "Admin",
-            Email = "admin@company.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), // Băm mật khẩu
-            LateDays = 0,
-            LeaveDays = 0,
-            IsManager = true
-        };
-
-        context.Employees.Add(admin);
-        context.SaveChanges();
-        Console.WriteLine("✅ Admin account created successfully!");
-    }
-}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -62,6 +39,31 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "ChamCongAPI v1");
         c.RoutePrefix = "swagger"; // Đặt Swagger UI tại /swagger
     });
+}
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.EnsureCreated(); // Đảm bảo database đã tạo
+
+    // Kiểm tra nếu chưa có Admin thì thêm vào
+    if (!context.Employees.Any(e => e.Email == "admin@company.com"))
+    {
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+
+        var admin = new Employee
+        {
+            EmployeeCode = "ADMIN001",
+            Name = "Administrator",
+            Department = "Management",
+            Position = "Admin",
+            Email = "admin@company.com",
+            PasswordHash = hashedPassword,
+            Rules = "Admin"
+        };
+
+        context.Employees.Add(admin);
+        context.SaveChanges();
+    }
 }
 
 app.UseHttpsRedirection();

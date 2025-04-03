@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChamCongAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Employee")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -66,9 +66,7 @@ namespace ChamCongAPI.Controllers
             existingEmployee.Department = employee.Department;
             existingEmployee.Position = employee.Position;
             existingEmployee.Email = employee.Email;
-            existingEmployee.LateDays = employee.LateDays;
-            existingEmployee.LeaveDays = employee.LeaveDays;
-            existingEmployee.IsManager = employee.IsManager;
+            
 
             _context.Entry(existingEmployee).State = EntityState.Modified;
             await _context.SaveChangesAsync();

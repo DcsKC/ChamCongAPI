@@ -29,7 +29,7 @@ namespace ChamCongAPI.Controllers
             return Ok(new
             {
                 UserId = employee.Id,
-                UserIsManager = employee.IsManager
+                UserRole = employee.Rules
             });
         }
     }
